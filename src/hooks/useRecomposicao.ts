@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFirebaseSync } from './useFirebaseSync';
 import { supabase } from '@/lib/supabase';
 
 export interface Turma {
@@ -154,6 +155,8 @@ export function useRecomposicao(mes: number, ano: number, escolaFiltro?: number 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useFirebaseSync('recomposicao_turmas', fetchData);
 
   const upsertDiagnostico = async (data: DiagnosticoInput): Promise<boolean> => {
     const { error: err } = await supabase

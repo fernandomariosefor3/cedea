@@ -4,6 +4,7 @@ import { useData } from '@/context/DataContext';
 import { useCdG, CdGEscola, etapasCdG } from '@/hooks/useCdG';
 import ModalCdGEscola from './components/ModalCdGEscola';
 import AnaliseIA from '@/components/feature/AnaliseIA';
+import { loadCdgPlanos, saveCdgPlanos, subscribeCdgPlanos } from '@/lib/firebaseSync';
 
 const statusCor: Record<string, string> = {
   'Em dia': 'bg-emerald-100 text-emerald-700',
@@ -35,18 +36,6 @@ interface PlanoEscola {
   updated_at: string;
 }
 
-const PLANOS_KEY = 'sefor3_planos_cdg';
-
-function loadPlanos(): PlanoEscola[] {
-  try {
-    const raw = localStorage.getItem(PLANOS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
-}
-
-function savePlanos(planos: PlanoEscola[]) {
-  localStorage.setItem(PLANOS_KEY, JSON.stringify(planos));
-}
 
 const impactoConfig = {
   alto: { label: 'Alto', color: 'text-red-600', bg: 'bg-red-50' },
@@ -70,7 +59,7 @@ export default function CdGPage() {
   const [abaAtiva, setAbaAtiva] = useState<'ciclo' | 'plano'>('ciclo');
 
   // Plano de Ação state
-  const [planos, setPlanos] = useState<PlanoEscola[]>(loadPlanos);
+  const [planos, setPlanos] = useState<PlanoEscola[]>([]);
   const [escolaPlanoId, setEscolaPlanoId] = useState<number | null>(null);
   const [novaAcaoForm, setNovaAcaoForm] = useState<Partial<AcaoPlano>>({
     acao: '', responsavel: '', prazo: '', impacto: 'alto', status: 'pendente', observacao: '',
@@ -80,9 +69,24 @@ export default function CdGPage() {
   const [planoForm, setPlanoForm] = useState({ objetivo: '', analise: '' });
   const [expandidoAcao, setExpandidoAcao] = useState<string | null>(null);
 
+  const [planosLoaded, setPlanosLoaded] = useState(false);
+
+  // Load planos from Firebase and subscribe to real-time updates
   useEffect(() => {
-    savePlanos(planos);
-  }, [planos]);
+    loadCdgPlanos<PlanoEscola>().then(data => {
+      setPlanos(data);
+      setPlanosLoaded(true);
+    });
+    const unsub = subscribeCdgPlanos<PlanoEscola>(setPlanos);
+    return unsub;
+  }, []);
+
+  // Save to Firebase whenever planos change (after initial load)
+  useEffect(() => {
+    if (planosLoaded) {
+      saveCdgPlanos(planos);
+    }
+  }, [planos, planosLoaded]);
 
   const getCdG = (escolaId: number): CdGEscola =>
     cdgData.find(c => c.escola_id === escolaId) ?? {

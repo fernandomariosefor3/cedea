@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFirebaseSync } from './useFirebaseSync';
 import { supabase } from '@/lib/supabase';
 
 export interface Relatorio {
@@ -62,6 +63,8 @@ export function useRelatorios() {
   useEffect(() => {
     fetchRelatorios();
   }, [fetchRelatorios]);
+
+  useFirebaseSync('relatorios', fetchRelatorios);
 
   const addRelatorio = useCallback(async (input: NovoRelatorioInput): Promise<Relatorio | null> => {
     try {

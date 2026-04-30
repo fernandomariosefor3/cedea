@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFirebaseSync } from './useFirebaseSync';
 import { supabase } from '@/lib/supabase';
 
 export interface AcaoPlano {
@@ -69,6 +70,8 @@ export function usePlanos() {
   useEffect(() => {
     fetchPlanos();
   }, [fetchPlanos]);
+
+  useFirebaseSync('planos_acao', fetchPlanos);
 
   const addPlano = useCallback(async (input: NovoPlanoInput): Promise<PlanoAcao | null> => {
     try {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFirebaseSync } from './useFirebaseSync';
 import { supabase } from '@/lib/supabase';
 
 export interface CdGEvidencia {
@@ -83,6 +84,8 @@ export function useCdG() {
   useEffect(() => {
     fetchCdG();
   }, [fetchCdG]);
+
+  useFirebaseSync('cdg_escolas', fetchCdG);
 
   const getCdGByEscolaId = useCallback((escolaId: number): CdGEscola | undefined => {
     return cdgData.find(c => c.escola_id === escolaId);

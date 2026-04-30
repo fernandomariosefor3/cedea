@@ -20,9 +20,36 @@
  * The shim resolves them via the relations table below (foreign-key map).
  */
 
-const LS_PREFIX = 'crede.db.';
-const LS_VERSION_KEY = 'crede.db.__version__';
 const SEED_VERSION = '2026-04-24-1';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// In-memory cache (replaces localStorage; Firebase is the persistent backend)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const memCache = new Map<string, Row[]>();
+
+// Called by firebaseSync.ts after loading data from Firebase
+export function setTableCache(name: string, rows: Row[]): void {
+  memCache.set(name, rows);
+}
+
+export function getTableCache(name: string): Row[] {
+  return memCache.get(name) ?? [];
+}
+
+// Registry for the Firebase write function (injected by firebaseSync.ts)
+let _firebaseWriter: ((table: string, rows: Row[]) => void) | null = null;
+
+export function setFirebaseWriter(fn: (table: string, rows: Row[]) => void): void {
+  _firebaseWriter = fn;
+}
+
+// Whether Firebase has already loaded data (skip local seeding if true)
+let _firebasePopulated = false;
+export function markFirebasePopulated(): void {
+  _firebasePopulated = true;
+  seeded = true; // prevent local seed from overwriting Firebase data
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Type re-exports (kept identical to the original Supabase module so consuming
@@ -167,24 +194,25 @@ export interface RelatorioDB {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Storage primitives
+// Storage primitives (in-memory cache backed by Firebase)
 // ─────────────────────────────────────────────────────────────────────────────
 
 type Row = Record<string, any>;
 
 function readTable<T = Row>(name: string): T[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(LS_PREFIX + name);
-    return raw ? (JSON.parse(raw) as T[]) : [];
-  } catch {
-    return [];
-  }
+  return (memCache.get(name) as T[]) ?? [];
 }
 
 function writeTable(name: string, rows: Row[]): void {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(LS_PREFIX + name, JSON.stringify(rows));
+  memCache.set(name, rows);
+  // Async write to Firebase (fire-and-forget)
+  if (_firebaseWriter) {
+    _firebaseWriter(name, rows);
+  }
+  // Notify any listeners (hooks can subscribe for real-time refresh)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(`sefor3:table:${name}`));
+  }
 }
 
 function nextId(rows: Row[], key: string = 'id'): number {
@@ -472,17 +500,18 @@ class QueryBuilder<T = Row> implements PromiseLike<{ data: any; error: any }> {
 
       switch (this.action.kind) {
         case 'select': {
+          const selectAction = this.action as Extract<Action, { kind: 'select' }>;
           const filtered = rowsAll.filter((r) => this.matches(r));
           const sorted = this.sortRows(filtered);
-          const expanded = applyJoins(sorted, this.table, this.action.spec.joins);
+          const expanded = applyJoins(sorted, this.table, selectAction.spec.joins);
           const projected =
-            this.action.spec.cols === '*'
+            selectAction.spec.cols === '*'
               ? expanded
               : expanded.map((r) => {
                   const out: Row = {};
-                  for (const c of this.action.spec.cols as string[]) out[c] = r[c];
+                  for (const c of selectAction.spec.cols as string[]) out[c] = r[c];
                   // keep joined aliases too
-                  for (const j of this.action.spec.joins) out[j.alias] = r[j.alias];
+                  for (const j of selectAction.spec.joins) out[j.alias] = r[j.alias];
                   return out;
                 });
           return this.finalize(projected);
@@ -596,18 +625,19 @@ let seeded = false;
 
 function ensureSeeded(): void {
   if (seeded) return;
-  if (typeof window === 'undefined') {
-    seeded = true;
-    return;
-  }
-  const current = window.localStorage.getItem(LS_VERSION_KEY);
-  if (current === SEED_VERSION) {
+  // If Firebase populated the cache, skip local seeding
+  if (_firebasePopulated) {
     seeded = true;
     return;
   }
   seedAll();
-  window.localStorage.setItem(LS_VERSION_KEY, SEED_VERSION);
   seeded = true;
+  // Write seed data to Firebase so future sessions use Firebase
+  if (_firebaseWriter) {
+    memCache.forEach((rows, table) => {
+      _firebaseWriter!(table, rows);
+    });
+  }
 }
 
 function seedAll(): void {

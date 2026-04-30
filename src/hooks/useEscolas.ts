@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useFirebaseSync } from './useFirebaseSync';
 
 export interface MembroGestor {
   id: number;
@@ -148,6 +149,8 @@ export function useEscolas() {
   useEffect(() => {
     fetchEscolas();
   }, [fetchEscolas]);
+
+  useFirebaseSync('escolas', fetchEscolas);
 
   const updateEscola = useCallback(async (id: number, data: EscolaUpdateInput): Promise<boolean> => {
     try {

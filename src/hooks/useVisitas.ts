@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFirebaseSync } from './useFirebaseSync';
 import { supabase, VisitaDB, EncaminhamentoDB } from '@/lib/supabase';
 
 export type StatusVisita = 'Agendada' | 'Realizada' | 'Cancelada' | 'Reagendada';
@@ -65,6 +66,8 @@ export function useVisitas() {
   useEffect(() => {
     fetchVisitas();
   }, [fetchVisitas]);
+
+  useFirebaseSync('visitas', fetchVisitas);
 
   const addVisita = useCallback(async (input: NovaVisitaInput): Promise<boolean> => {
     try {

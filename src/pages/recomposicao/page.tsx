@@ -3,6 +3,7 @@ import MainLayout from '@/components/feature/MainLayout';
 import { useRecomposicao, TurmaComDiagnostico } from '@/hooks/useRecomposicao';
 import { useEscolas } from '@/hooks/useEscolas';
 import ModalDiagnostico from './components/ModalDiagnostico';
+import { loadAcoesRecomp, saveAcoesRecomp, subscribeAcoesRecomp } from '@/lib/firebaseSync';
 
 interface AcaoRecomp {
   id: string;
@@ -16,12 +17,6 @@ interface AcaoRecomp {
   componente: 'Língua Portuguesa' | 'Matemática' | 'Geral';
 }
 
-const ACOES_KEY = 'sefor3_acoes_recomp';
-
-function loadAcoes(): AcaoRecomp[] {
-  try { return JSON.parse(localStorage.getItem(ACOES_KEY) || '[]'); } catch { return []; }
-}
-function saveAcoes(a: AcaoRecomp[]) { localStorage.setItem(ACOES_KEY, JSON.stringify(a)); }
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -66,7 +61,8 @@ export default function RecomposicaoPage() {
   const [selectedTurma, setSelectedTurma] = useState<TurmaComDiagnostico | null>(null);
 
   // Ações por escola
-  const [acoes, setAcoes] = useState<AcaoRecomp[]>(loadAcoes);
+  const [acoes, setAcoes] = useState<AcaoRecomp[]>([]);
+  const [acoesLoaded, setAcoesLoaded] = useState(false);
   const [mostrarAcoes, setMostrarAcoes] = useState(false);
   const [adicionandoAcao, setAdicionandoAcao] = useState(false);
   const [novaAcao, setNovaAcao] = useState<Partial<AcaoRecomp>>({
@@ -75,7 +71,22 @@ export default function RecomposicaoPage() {
   const [filtroAcaoEscola, setFiltroAcaoEscola] = useState<number | null>(null);
   const [filtroAcaoStatus, setFiltroAcaoStatus] = useState<'todos' | AcaoRecomp['status']>('todos');
 
-  useEffect(() => { saveAcoes(acoes); }, [acoes]);
+  // Load acoes from Firebase and subscribe to real-time updates
+  useEffect(() => {
+    loadAcoesRecomp<AcaoRecomp>().then(data => {
+      setAcoes(data);
+      setAcoesLoaded(true);
+    });
+    const unsub = subscribeAcoesRecomp<AcaoRecomp>(setAcoes);
+    return unsub;
+  }, []);
+
+  // Save to Firebase whenever acoes change (after initial load)
+  useEffect(() => {
+    if (acoesLoaded) {
+      saveAcoesRecomp(acoes);
+    }
+  }, [acoes, acoesLoaded]);
 
   const { turmas, stats, loading, error, upsertDiagnostico } = useRecomposicao(mes, ano, escolaFiltro);
   const { escolas } = useEscolas();

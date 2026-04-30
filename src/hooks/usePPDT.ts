@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFirebaseSync } from './useFirebaseSync';
 import { supabase } from '@/lib/supabase';
 
 export interface FaceRecord {
@@ -154,6 +155,8 @@ export function usePPDT(mes: number, ano: number) {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useFirebaseSync('ppdt_face', fetchData);
 
   const upsertFace = async (data: FaceInput): Promise<boolean> => {
     const { error: err } = await supabase

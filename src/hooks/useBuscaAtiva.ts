@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFirebaseSync } from './useFirebaseSync';
 import { supabase } from '@/lib/supabase';
 
 export interface AcaoBuscaAtiva {
@@ -116,6 +117,8 @@ export function useBuscaAtiva() {
   useEffect(() => {
     fetchAlunos();
   }, [fetchAlunos]);
+
+  useFirebaseSync('busca_ativa', fetchAlunos);
 
   const addAluno = useCallback(async (data: NovoAlunoRisco): Promise<AlunoRisco | null> => {
     try {
