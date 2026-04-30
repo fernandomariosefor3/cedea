@@ -22,13 +22,15 @@ const TABS = ['Visão Geral', 'Visitas', 'Gráficos', 'Análise IA'] as const;
 const tabs = TABS;
 
 export default function EscolasPage() {
-  const { escolas, loading, error, updateEscola, createEscola } = useData();
+  const { escolas, loading, error, updateEscola, createEscola, deleteEscola } = useData();
   const [selected, setSelected] = useState<EscolaEditavel | null>(null);
   const [activeTab, setActiveTab] = useState('Visão Geral');
   const [search, setSearch] = useState('');
   const [filtro, setFiltro] = useState<'todos' | 'verde' | 'amarelo' | 'vermelho'>('todos');
   const [editando, setEditando] = useState(false);
   const [criando, setCriando] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
   const [savedToastMsg, setSavedToastMsg] = useState('Escola atualizada com sucesso!');
 
@@ -58,6 +60,20 @@ export default function EscolasPage() {
       setTimeout(() => setSavedToast(false), 3000);
     }
     return success;
+  };
+
+  const handleDelete = async () => {
+    if (!selected) return;
+    setDeleting(true);
+    const success = await deleteEscola(selected.id);
+    setDeleting(false);
+    if (success) {
+      setSelected(null);
+      setConfirmDelete(false);
+      setSavedToastMsg('Escola excluída com sucesso!');
+      setSavedToast(true);
+      setTimeout(() => setSavedToast(false), 3000);
+    }
   };
 
   if (loading) {
@@ -131,7 +147,7 @@ export default function EscolasPage() {
             {filtered.map((escola) => (
               <div
                 key={escola.id}
-                onClick={() => { setSelected(escola); setActiveTab('Visão Geral'); }}
+                onClick={() => { setSelected(escola); setActiveTab('Visão Geral'); setConfirmDelete(false); }}
                 className={`bg-white rounded-xl p-4 cursor-pointer transition-all hover:-translate-y-0.5 ${selected?.id === escola.id ? 'ring-2 ring-[#00A86B]' : ''}`}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -181,14 +197,55 @@ export default function EscolasPage() {
               {/* Barra de ações abaixo do header */}
               <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100">
                 <p className="text-xs text-gray-400">{selected.diretor}</p>
-                <button
-                  onClick={() => setEditando(true)}
-                  className="flex items-center gap-1.5 bg-[#0F2744] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#1a3a5c] cursor-pointer transition-colors whitespace-nowrap"
-                >
-                  <i className="ri-edit-line text-xs"></i>
-                  Editar Escola
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    className="flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-4 py-2 rounded-lg hover:bg-red-100 cursor-pointer transition-colors whitespace-nowrap"
+                  >
+                    <i className="ri-delete-bin-line text-xs"></i>
+                    Excluir
+                  </button>
+                  <button
+                    onClick={() => setEditando(true)}
+                    className="flex items-center gap-1.5 bg-[#0F2744] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#1a3a5c] cursor-pointer transition-colors whitespace-nowrap"
+                  >
+                    <i className="ri-edit-line text-xs"></i>
+                    Editar Escola
+                  </button>
+                </div>
               </div>
+
+              {/* Diálogo de confirmação de exclusão */}
+              {confirmDelete && (
+                <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 flex items-center justify-center bg-red-100 rounded-full flex-shrink-0">
+                      <i className="ri-error-warning-line text-red-600 text-sm"></i>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-bold text-red-700">Confirmar exclusão</p>
+                      <p className="text-xs text-red-600 mt-0.5">
+                        Tem certeza que deseja excluir <strong>{selected.nome}</strong>? Esta ação não pode ser desfeita.
+                      </p>
+                      <div className="flex items-center gap-2 mt-3">
+                        <button
+                          onClick={handleDelete}
+                          disabled={deleting}
+                          className="flex items-center gap-1.5 bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-red-700 cursor-pointer transition-colors disabled:opacity-50 whitespace-nowrap"
+                        >
+                          {deleting ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Excluindo...</> : <><i className="ri-delete-bin-line text-xs"></i> Sim, excluir</>}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(false)}
+                          className="text-xs font-semibold text-gray-600 px-4 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors whitespace-nowrap"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Tabs */}
               <div className="border-b border-gray-100 px-6">
