@@ -1,0 +1,188 @@
+export interface Escola {
+  id: number;
+  nome: string;
+  diretor: string;
+  endereco: string;
+  telefone: string;
+  email: string;
+  ideb: number;
+  aprovacao: number;
+  evasao: number;
+  frequencia: number;
+  matriculas: number;
+  matriculasAnterior: number;
+  preenchimentoSige: number;
+  statusSemaforo: 'verde' | 'amarelo' | 'vermelho';
+  statusCdg: 'Em dia' | 'Atrasado' | 'Crítico';
+  etapasCdg: number;
+  foto: string;
+}
+
+export const escolas: Escola[] = [
+  {
+    id: 1,
+    nome: 'EEFM Governador Virgílio Távora',
+    diretor: 'Ana Paula Ferreira',
+    endereco: 'Rua das Flores, 120 — Fortaleza',
+    telefone: '(85) 3101-2200',
+    email: 'eefm.virgilio@seduc.ce.gov.br',
+    ideb: 6.8,
+    aprovacao: 94.2,
+    evasao: 1.8,
+    frequencia: 92.5,
+    matriculas: 1240,
+    matriculasAnterior: 1198,
+    preenchimentoSige: 98,
+    statusSemaforo: 'verde',
+    statusCdg: 'Em dia',
+    etapasCdg: 5,
+    foto: 'https://readdy.ai/api/search-image?query=modern%20public%20school%20building%20in%20Brazil%20with%20green%20trees%20and%20blue%20sky%20clean%20architecture%20educational%20institution%20facade&width=800&height=400&seq=escola1&orientation=landscape',
+  },
+  {
+    id: 2,
+    nome: 'EEFM Presidente Castelo Branco',
+    diretor: 'Carlos Eduardo Lima',
+    endereco: 'Av. Bezerra de Menezes, 450 — Fortaleza',
+    telefone: '(85) 3101-3300',
+    email: 'eefm.castelo@seduc.ce.gov.br',
+    ideb: 6.4,
+    aprovacao: 91.7,
+    evasao: 2.3,
+    frequencia: 90.1,
+    matriculas: 980,
+    matriculasAnterior: 1010,
+    preenchimentoSige: 87,
+    statusSemaforo: 'amarelo',
+    statusCdg: 'Em dia',
+    etapasCdg: 4,
+    foto: 'https://readdy.ai/api/search-image?query=Brazilian%20public%20high%20school%20building%20exterior%20with%20students%20courtyard%20sunny%20day%20educational%20architecture&width=800&height=400&seq=escola2&orientation=landscape',
+  },
+  {
+    id: 3,
+    nome: 'EEFM Dom Lustosa',
+    diretor: 'Maria José Rodrigues',
+    endereco: 'Rua Dom Lustosa, 88 — Fortaleza',
+    telefone: '(85) 3101-4400',
+    email: 'eefm.domlustosa@seduc.ce.gov.br',
+    ideb: 5.9,
+    aprovacao: 88.4,
+    evasao: 4.1,
+    frequencia: 85.3,
+    matriculas: 760,
+    matriculasAnterior: 820,
+    preenchimentoSige: 62,
+    statusSemaforo: 'vermelho',
+    statusCdg: 'Crítico',
+    etapasCdg: 2,
+    foto: 'https://readdy.ai/api/search-image?query=public%20school%20building%20Brazil%20Ceara%20state%20education%20institution%20exterior%20daytime%20clean%20facade&width=800&height=400&seq=escola3&orientation=landscape',
+  },
+  {
+    id: 4,
+    nome: 'EEFM Liceu do Conjunto Ceará',
+    diretor: 'Roberto Alves Sousa',
+    endereco: 'Rua Coronel Matos, 200 — Fortaleza',
+    telefone: '(85) 3101-5500',
+    email: 'eefm.liceu@seduc.ce.gov.br',
+    ideb: 6.1,
+    aprovacao: 90.2,
+    evasao: 3.0,
+    frequencia: 88.7,
+    matriculas: 1100,
+    matriculasAnterior: 1080,
+    preenchimentoSige: 75,
+    statusSemaforo: 'amarelo',
+    statusCdg: 'Atrasado',
+    etapasCdg: 3,
+    foto: 'https://readdy.ai/api/search-image?query=large%20public%20school%20complex%20Brazil%20with%20sports%20court%20and%20green%20areas%20educational%20building%20exterior&width=800&height=400&seq=escola4&orientation=landscape',
+  },
+  {
+    id: 5,
+    nome: 'EEFM Deputado Paulino Rocha',
+    diretor: 'Fernanda Costa Melo',
+    endereco: 'Av. Paulino Rocha, 340 — Fortaleza',
+    telefone: '(85) 3101-6600',
+    email: 'eefm.paulino@seduc.ce.gov.br',
+    ideb: 7.1,
+    aprovacao: 96.0,
+    evasao: 1.2,
+    frequencia: 94.8,
+    matriculas: 890,
+    matriculasAnterior: 870,
+    preenchimentoSige: 100,
+    statusSemaforo: 'verde',
+    statusCdg: 'Em dia',
+    etapasCdg: 5,
+    foto: 'https://readdy.ai/api/search-image?query=well-maintained%20school%20building%20Brazil%20with%20colorful%20entrance%20and%20clean%20surroundings%20educational%20institution&width=800&height=400&seq=escola5&orientation=landscape',
+  },
+  {
+    id: 6,
+    nome: 'EEFM Joaquim Nabuco',
+    diretor: 'Paulo Henrique Dias',
+    endereco: 'Rua Joaquim Nabuco, 55 — Fortaleza',
+    telefone: '(85) 3101-7700',
+    email: 'eefm.nabuco@seduc.ce.gov.br',
+    ideb: 5.5,
+    aprovacao: 84.1,
+    evasao: 5.8,
+    frequencia: 82.0,
+    matriculas: 640,
+    matriculasAnterior: 710,
+    preenchimentoSige: 45,
+    statusSemaforo: 'vermelho',
+    statusCdg: 'Crítico',
+    etapasCdg: 1,
+    foto: 'https://readdy.ai/api/search-image?query=urban%20public%20school%20Brazil%20street%20view%20educational%20building%20with%20gate%20and%20fence&width=800&height=400&seq=escola6&orientation=landscape',
+  },
+  {
+    id: 7,
+    nome: 'EEFM Presidente Médici',
+    diretor: 'Luciana Barros Neto',
+    endereco: 'Rua Presidente Médici, 180 — Fortaleza',
+    telefone: '(85) 3101-8800',
+    email: 'eefm.medici@seduc.ce.gov.br',
+    ideb: 6.6,
+    aprovacao: 93.5,
+    evasao: 2.0,
+    frequencia: 91.4,
+    matriculas: 1050,
+    matriculasAnterior: 1020,
+    preenchimentoSige: 91,
+    statusSemaforo: 'verde',
+    statusCdg: 'Em dia',
+    etapasCdg: 5,
+    foto: 'https://readdy.ai/api/search-image?query=Brazilian%20secondary%20school%20building%20with%20students%20outside%20sunny%20afternoon%20educational%20architecture%20facade&width=800&height=400&seq=escola7&orientation=landscape',
+  },
+  {
+    id: 8,
+    nome: 'EEFM Monsenhor Tabosa',
+    diretor: 'Antônio Ferreira Gomes',
+    endereco: 'Rua Monsenhor Tabosa, 290 — Fortaleza',
+    telefone: '(85) 3101-9900',
+    email: 'eefm.tabosa@seduc.ce.gov.br',
+    ideb: 6.0,
+    aprovacao: 89.8,
+    evasao: 3.5,
+    frequencia: 87.2,
+    matriculas: 820,
+    matriculasAnterior: 840,
+    preenchimentoSige: 68,
+    statusSemaforo: 'amarelo',
+    statusCdg: 'Atrasado',
+    etapasCdg: 3,
+    foto: 'https://readdy.ai/api/search-image?query=public%20school%20Fortaleza%20Ceara%20Brazil%20building%20exterior%20with%20palm%20trees%20and%20blue%20sky&width=800&height=400&seq=escola8&orientation=landscape',
+  },
+];
+
+export const alertas = [
+  { id: 1, tipo: 'critico', mensagem: '6 escolas com preenchimento SIGE abaixo de 50% — prazo em 5 dias', modulo: 'Notas' },
+  { id: 2, tipo: 'atencao', mensagem: '3 escolas com evasão acima de 5% — acionar Busca Ativa imediatamente', modulo: 'Fluxo Escolar' },
+  { id: 3, tipo: 'atencao', mensagem: 'EEFM Dom Lustosa e EEFM Joaquim Nabuco com CdG em etapa 1 — intervenção necessária', modulo: 'CdG' },
+  { id: 4, tipo: 'info', mensagem: 'Parada Reflexiva agendada para 15/04/2026 — confirmar participação das escolas', modulo: 'CdG' },
+];
+
+export const visitasAgendadas = [
+  { id: 1, escola: 'EEFM Dom Lustosa', data: '07 ABR', hora: '08:00', objetivo: 'Acompanhamento CdG — Etapa Execução', status: 'Agendada' },
+  { id: 2, escola: 'EEFM Joaquim Nabuco', data: '09 ABR', hora: '09:30', objetivo: 'Intervenção urgente — evasão e SIGE', status: 'Agendada' },
+  { id: 3, escola: 'EEFM Liceu do Conjunto Ceará', data: '11 ABR', hora: '14:00', objetivo: 'Revisão do Plano de Ação', status: 'Agendada' },
+  { id: 4, escola: 'EEFM Presidente Castelo Branco', data: '14 ABR', hora: '10:00', objetivo: 'SMAR — análise de resultados', status: 'Agendada' },
+];
