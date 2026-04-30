@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /login
+Disallow: /escolas
+Disallow: /fluxo-escolar
+Disallow: /notas
+Disallow: /cdg
+Disallow: /plano-de-acao
+Disallow: /visitas
+Disallow: /relatorios
+Disallow: /404
+Allow: /
+Sitemap: https://example.com/sitemap.xml
