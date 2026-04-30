@@ -283,6 +283,23 @@ export function useEscolas() {
     }
   }, []);
 
+  const deleteEscola = useCallback(async (id: number): Promise<boolean> => {
+    try {
+      const { error: err } = await supabase
+        .from('escolas')
+        .delete()
+        .eq('id', id);
+
+      if (err) throw err;
+
+      setEscolas(prev => prev.filter(e => e.id !== id));
+      return true;
+    } catch (e) {
+      console.error('Erro ao excluir escola:', e);
+      return false;
+    }
+  }, []);
+
   const getEscolaById = useCallback((id: number) => {
     return escolas.find(e => e.id === id);
   }, [escolas]);
@@ -306,6 +323,7 @@ export function useEscolas() {
     error,
     updateEscola,
     createEscola,
+    deleteEscola,
     getEscolaById,
     stats,
     refetch: fetchEscolas,
