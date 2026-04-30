@@ -1,8 +1,27 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import MainLayout from '@/components/feature/MainLayout';
 import { useRecomposicao, TurmaComDiagnostico } from '@/hooks/useRecomposicao';
 import { useEscolas } from '@/hooks/useEscolas';
 import ModalDiagnostico from './components/ModalDiagnostico';
+
+interface AcaoRecomp {
+  id: string;
+  escola_id: number;
+  escola_nome: string;
+  acao: string;
+  responsavel: string;
+  prazo: string;
+  impacto: 'alto' | 'médio' | 'baixo';
+  status: 'pendente' | 'em_andamento' | 'concluida';
+  componente: 'Língua Portuguesa' | 'Matemática' | 'Geral';
+}
+
+const ACOES_KEY = 'sefor3_acoes_recomp';
+
+function loadAcoes(): AcaoRecomp[] {
+  try { return JSON.parse(localStorage.getItem(ACOES_KEY) || '[]'); } catch { return []; }
+}
+function saveAcoes(a: AcaoRecomp[]) { localStorage.setItem(ACOES_KEY, JSON.stringify(a)); }
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -45,6 +64,18 @@ export default function RecomposicaoPage() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTurma, setSelectedTurma] = useState<TurmaComDiagnostico | null>(null);
+
+  // Ações por escola
+  const [acoes, setAcoes] = useState<AcaoRecomp[]>(loadAcoes);
+  const [mostrarAcoes, setMostrarAcoes] = useState(false);
+  const [adicionandoAcao, setAdicionandoAcao] = useState(false);
+  const [novaAcao, setNovaAcao] = useState<Partial<AcaoRecomp>>({
+    acao: '', responsavel: '', prazo: '', impacto: 'alto', status: 'pendente', componente: 'Geral',
+  });
+  const [filtroAcaoEscola, setFiltroAcaoEscola] = useState<number | null>(null);
+  const [filtroAcaoStatus, setFiltroAcaoStatus] = useState<'todos' | AcaoRecomp['status']>('todos');
+
+  useEffect(() => { saveAcoes(acoes); }, [acoes]);
 
   const { turmas, stats, loading, error, upsertDiagnostico } = useRecomposicao(mes, ano, escolaFiltro);
   const { escolas } = useEscolas();
@@ -307,6 +338,247 @@ export default function RecomposicaoPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Ações por escola com prazo e impacto */}
+        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div
+            className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => setMostrarAcoes(!mostrarAcoes)}
+          >
+            <div>
+              <h3 className="text-sm font-bold text-[#0F2744] flex items-center gap-2">
+                <i className="ri-task-line text-[#00A86B]"></i>
+                Ações de Recomposição por Escola
+              </h3>
+              <p className="text-[10px] text-gray-400 mt-0.5">{acoes.length} ação{acoes.length !== 1 ? 'ões' : ''} cadastrada{acoes.length !== 1 ? 's' : ''} — com prazo e impacto</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`w-7 h-7 flex items-center justify-center rounded-lg ${mostrarAcoes ? 'bg-[#0F2744]/5' : ''}`}>
+                <i className={`ri-arrow-${mostrarAcoes ? 'up' : 'down'}-s-line text-gray-400`}></i>
+              </span>
+            </div>
+          </div>
+
+          {mostrarAcoes && (
+            <div className="border-t border-gray-100 p-5 space-y-4">
+              {/* Filtros e botão de adicionar */}
+              <div className="flex flex-wrap items-center gap-3">
+                <select
+                  value={filtroAcaoEscola ?? ''}
+                  onChange={e => setFiltroAcaoEscola(e.target.value ? Number(e.target.value) : null)}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer bg-white"
+                >
+                  <option value="">Todas as escolas</option>
+                  {escolas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
+                </select>
+                <div className="flex gap-1.5">
+                  {(['todos', 'pendente', 'em_andamento', 'concluida'] as const).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setFiltroAcaoStatus(s)}
+                      className={`px-3 py-1.5 text-[10px] font-semibold rounded-full cursor-pointer transition-all whitespace-nowrap ${filtroAcaoStatus === s ? 'bg-[#0F2744] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    >
+                      {s === 'todos' ? 'Todos' : s === 'pendente' ? 'Pendente' : s === 'em_andamento' ? 'Em andamento' : 'Concluída'}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setAdicionandoAcao(true)}
+                  className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-[#00A86B] text-white text-xs font-bold rounded-lg hover:bg-[#009960] cursor-pointer transition-colors whitespace-nowrap"
+                >
+                  <i className="ri-add-line text-sm"></i>Nova Ação
+                </button>
+              </div>
+
+              {/* Formulário de nova ação */}
+              {adicionandoAcao && (
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-3">
+                  <p className="text-xs font-bold text-gray-700">Nova Ação de Recomposição</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-600 block mb-1">Escola <span className="text-red-400">*</span></label>
+                      <select
+                        value={novaAcao.escola_id ?? ''}
+                        onChange={e => {
+                          const id = Number(e.target.value);
+                          const nome = escolas.find(es => es.id === id)?.nome || '';
+                          setNovaAcao(p => ({ ...p, escola_id: id, escola_nome: nome }));
+                        }}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer"
+                      >
+                        <option value="">Selecione...</option>
+                        {escolas.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-600 block mb-1">Componente</label>
+                      <select
+                        value={novaAcao.componente}
+                        onChange={e => setNovaAcao(p => ({ ...p, componente: e.target.value as AcaoRecomp['componente'] }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer"
+                      >
+                        <option value="Geral">Geral</option>
+                        <option value="Língua Portuguesa">Língua Portuguesa</option>
+                        <option value="Matemática">Matemática</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-600 block mb-1">Descrição da Ação <span className="text-red-400">*</span></label>
+                    <textarea
+                      value={novaAcao.acao}
+                      onChange={e => setNovaAcao(p => ({ ...p, acao: e.target.value }))}
+                      placeholder="Descreva a ação de recomposição a ser realizada..."
+                      rows={2}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B] resize-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-600 block mb-1">Responsável</label>
+                      <input
+                        type="text"
+                        value={novaAcao.responsavel}
+                        onChange={e => setNovaAcao(p => ({ ...p, responsavel: e.target.value }))}
+                        placeholder="Nome do responsável"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B]"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-600 block mb-1">Prazo</label>
+                      <input
+                        type="date"
+                        value={novaAcao.prazo}
+                        onChange={e => setNovaAcao(p => ({ ...p, prazo: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-600 block mb-1">Impacto Esperado</label>
+                      <select
+                        value={novaAcao.impacto}
+                        onChange={e => setNovaAcao(p => ({ ...p, impacto: e.target.value as AcaoRecomp['impacto'] }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer"
+                      >
+                        <option value="alto">Alto impacto</option>
+                        <option value="médio">Médio impacto</option>
+                        <option value="baixo">Baixo impacto</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setAdicionandoAcao(false)} className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer whitespace-nowrap">Cancelar</button>
+                    <button
+                      onClick={() => {
+                        if (!novaAcao.acao?.trim() || !novaAcao.escola_id) return;
+                        const acao: AcaoRecomp = {
+                          id: Date.now().toString(),
+                          escola_id: novaAcao.escola_id!,
+                          escola_nome: novaAcao.escola_nome || '',
+                          acao: novaAcao.acao || '',
+                          responsavel: novaAcao.responsavel || '',
+                          prazo: novaAcao.prazo || '',
+                          impacto: novaAcao.impacto || 'alto',
+                          status: 'pendente',
+                          componente: novaAcao.componente || 'Geral',
+                        };
+                        setAcoes(prev => [...prev, acao]);
+                        setNovaAcao({ acao: '', responsavel: '', prazo: '', impacto: 'alto', status: 'pendente', componente: 'Geral' });
+                        setAdicionandoAcao(false);
+                      }}
+                      disabled={!novaAcao.acao?.trim() || !novaAcao.escola_id}
+                      className="px-4 py-1.5 text-xs font-bold bg-[#00A86B] text-white rounded-lg hover:bg-[#009960] cursor-pointer disabled:opacity-40 whitespace-nowrap"
+                    >
+                      Adicionar Ação
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Tabela de ações */}
+              {acoes.filter(a => (!filtroAcaoEscola || a.escola_id === filtroAcaoEscola) && (filtroAcaoStatus === 'todos' || a.status === filtroAcaoStatus)).length === 0 ? (
+                <div className="text-center py-8">
+                  <i className="ri-task-line text-gray-300 text-3xl"></i>
+                  <p className="text-sm text-gray-400 mt-2">Nenhuma ação cadastrada</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100 bg-gray-50">
+                        <th className="text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Escola</th>
+                        <th className="text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Componente</th>
+                        <th className="text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Ação</th>
+                        <th className="text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Responsável</th>
+                        <th className="text-center px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Prazo</th>
+                        <th className="text-center px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Impacto</th>
+                        <th className="text-center px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Status</th>
+                        <th className="px-4 py-2.5"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {acoes
+                        .filter(a => (!filtroAcaoEscola || a.escola_id === filtroAcaoEscola) && (filtroAcaoStatus === 'todos' || a.status === filtroAcaoStatus))
+                        .map(a => {
+                          const prazoVencido = a.prazo && new Date(a.prazo) < new Date() && a.status !== 'concluida';
+                          return (
+                            <tr key={a.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                              <td className="px-4 py-3">
+                                <p className="text-xs font-semibold text-gray-700 max-w-[140px] truncate">{a.escola_nome?.replace('EEFM ', '')}</p>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${a.componente === 'Matemática' ? 'bg-violet-50 text-violet-700' : a.componente === 'Língua Portuguesa' ? 'bg-sky-50 text-sky-700' : 'bg-gray-100 text-gray-600'}`}>
+                                  {a.componente === 'Matemática' ? 'Mat.' : a.componente === 'Língua Portuguesa' ? 'Port.' : 'Geral'}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <p className="text-xs text-gray-600 max-w-[200px] truncate">{a.acao}</p>
+                              </td>
+                              <td className="px-4 py-3">
+                                <p className="text-xs text-gray-500">{a.responsavel || '—'}</p>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                {a.prazo ? (
+                                  <span className={`text-xs font-semibold ${prazoVencido ? 'text-red-500' : 'text-gray-600'}`}>
+                                    {new Date(a.prazo + 'T00:00:00').toLocaleDateString('pt-BR')}
+                                    {prazoVencido && <i className="ri-alarm-warning-line ml-1 text-red-500"></i>}
+                                  </span>
+                                ) : <span className="text-xs text-gray-300">—</span>}
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${a.impacto === 'alto' ? 'bg-red-50 text-red-600' : a.impacto === 'médio' ? 'bg-yellow-50 text-yellow-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                  {a.impacto === 'alto' ? 'Alto' : a.impacto === 'médio' ? 'Médio' : 'Baixo'}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <select
+                                  value={a.status}
+                                  onChange={e => setAcoes(prev => prev.map(ac => ac.id === a.id ? { ...ac, status: e.target.value as AcaoRecomp['status'] } : ac))}
+                                  className={`text-[10px] font-bold px-2 py-1 rounded-full border-0 cursor-pointer focus:outline-none ${a.status === 'concluida' ? 'bg-emerald-50 text-emerald-600' : a.status === 'em_andamento' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'}`}
+                                >
+                                  <option value="pendente">Pendente</option>
+                                  <option value="em_andamento">Em andamento</option>
+                                  <option value="concluida">Concluída</option>
+                                </select>
+                              </td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={() => setAcoes(prev => prev.filter(ac => ac.id !== a.id))}
+                                  className="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 hover:bg-red-50 cursor-pointer transition-colors"
+                                >
+                                  <i className="ri-delete-bin-line text-sm"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Legenda de níveis */}

@@ -4,7 +4,6 @@ import EscolasPage from '@/pages/escolas/page';
 import FluxoEscolarPage from '@/pages/fluxo/page';
 import NotasPage from '@/pages/notas/page';
 import CdGPage from '@/pages/cdg/page';
-import PlanoAcaoPage from '@/pages/plano/page';
 import RelatoriosPage from '@/pages/relatorios/page';
 import VisitasPage from '@/pages/visitas/page';
 import BuscaAtivaPage from '@/pages/busca-ativa/page';
@@ -21,7 +20,6 @@ const routes: RouteObject[] = [
   { path: '/fluxo-escolar', element: <ProtectedRoute><FluxoEscolarPage /></ProtectedRoute> },
   { path: '/notas', element: <ProtectedRoute><NotasPage /></ProtectedRoute> },
   { path: '/cdg', element: <ProtectedRoute><CdGPage /></ProtectedRoute> },
-  { path: '/plano-de-acao', element: <ProtectedRoute><PlanoAcaoPage /></ProtectedRoute> },
   { path: '/visitas', element: <ProtectedRoute><VisitasPage /></ProtectedRoute> },
   { path: '/busca-ativa', element: <ProtectedRoute><BuscaAtivaPage /></ProtectedRoute> },
   { path: '/ppdt', element: <ProtectedRoute><PPDTPage /></ProtectedRoute> },

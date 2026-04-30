@@ -120,7 +120,7 @@ export default function NotasPage() {
           <div className="bg-white rounded-xl p-5">
             <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Nota Média Regional</p>
             <p className="text-2xl font-bold text-[#0F2744] mt-1">{stats.mediaIdeb.toFixed(1)}</p>
-            <p className="text-[10px] text-gray-400 mt-1">IDEB médio</p>
+            <p className="text-[10px] text-gray-400 mt-1">Meta 2026</p>
           </div>
         </div>
 

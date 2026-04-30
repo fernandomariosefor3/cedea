@@ -42,7 +42,7 @@ export default function HomePage() {
       <div className="space-y-6">
         <div className="grid grid-cols-4 gap-5">
           <KpiCard label="Total de Escolas" value={String(stats.totalEscolas)} icon="ri-school-line" color="text-[#0F2744]" bgColor="bg-[#0F2744]/10" trend={`${stats.totalMatriculas.toLocaleString('pt-BR')} matrículas`} trendUp />
-          <KpiCard label="Taxa de Aprovação" value={`${stats.mediaAprovacao}%`} icon="ri-graduation-cap-line" color="text-emerald-600" bgColor="bg-emerald-50" trend={`IDEB médio: ${stats.mediaIdeb}`} trendUp={stats.mediaAprovacao >= 90} />
+          <KpiCard label="Taxa de Aprovação" value={`${stats.mediaAprovacao}%`} icon="ri-graduation-cap-line" color="text-emerald-600" bgColor="bg-emerald-50" trend={`Meta 2026: ${stats.mediaIdeb}`} trendUp={stats.mediaAprovacao >= 90} />
           <KpiCard label="Evasão Escolar" value={`${stats.mediaEvasao}%`} icon="ri-user-unfollow-line" color="text-orange-500" bgColor="bg-orange-50" trend={stats.mediaEvasao <= 2 ? 'Controlada' : 'Requer atenção'} trendUp={stats.mediaEvasao <= 2} />
           <KpiCard label="Preenchimento SIGE" value={`${stats.mediaSige}%`} icon="ri-file-list-3-line" color="text-violet-600" bgColor="bg-violet-50" trend={`${stats.escolasVerdes} escolas no verde`} trendUp={stats.mediaSige >= 80} />
         </div>

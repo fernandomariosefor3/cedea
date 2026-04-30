@@ -77,7 +77,7 @@ export const relatorios: Relatorio[] = [
     id: 5,
     titulo: 'Planos de Ação — Execução e Pendências',
     descricao: 'Relatório consolidado de todos os planos de ação ativos, com percentual de execução e ações pendentes.',
-    modulo: 'Plano de Ação',
+    modulo: 'Plano de Ação CdG',
     formato: 'Excel',
     tamanho: '0,9 MB',
     dataGeracao: '30/03/2026',
@@ -136,6 +136,6 @@ export const modulosDisponiveis = [
   { label: 'Fluxo Escolar', icon: 'ri-flow-chart', cor: 'bg-emerald-50 text-emerald-700' },
   { label: 'Preenchimento de Notas', icon: 'ri-file-list-3-line', cor: 'bg-violet-50 text-violet-700' },
   { label: 'CdG Cearense', icon: 'ri-loop-right-line', cor: 'bg-orange-50 text-orange-700' },
-  { label: 'Plano de Ação', icon: 'ri-task-line', cor: 'bg-teal-50 text-teal-700' },
+  { label: 'Plano de Ação CdG', icon: 'ri-task-line', cor: 'bg-teal-50 text-teal-700' },
   { label: 'Escolas da Regional', icon: 'ri-school-line', cor: 'bg-yellow-50 text-yellow-700' },
 ];

@@ -16,12 +16,12 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const VALID_USERS = [
-  { email: 'admin@crede.ce.gov.br', password: 'crede2026', name: 'Coordenador Regional', role: 'Administrador' },
-  { email: 'gestor@crede.ce.gov.br', password: 'gestor123', name: 'Gestor Escolar', role: 'Gestor' },
-  { email: 'tecnico@crede.ce.gov.br', password: 'tecnico123', name: 'Técnico Regional', role: 'Técnico' },
+  { email: 'admin@sefor3.ce.gov.br', password: 'sefor2026', name: 'Gestor SEFOR 3', role: 'Administrador' },
+  { email: 'gestor@sefor3.ce.gov.br', password: 'gestor123', name: 'Gestor Escolar', role: 'Gestor' },
+  { email: 'tecnico@sefor3.ce.gov.br', password: 'tecnico123', name: 'Técnico Regional', role: 'Técnico' },
 ];
 
-const AUTH_KEY = 'crede_auth_user';
+const AUTH_KEY = 'sefor3_auth_user';
 
 function getStoredUser(): User | null {
   try {

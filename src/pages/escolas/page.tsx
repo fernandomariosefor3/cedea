@@ -140,7 +140,7 @@ export default function EscolasPage() {
                 </div>
                 <p className="text-[10px] text-gray-400 mt-1">{escola.diretor}</p>
                 <div className="flex gap-3 mt-2">
-                  <span className="text-[10px] text-gray-500">IDEB: <strong className="text-gray-700">{escola.ideb}</strong></span>
+                  <span className="text-[10px] text-gray-500">Meta 26: <strong className="text-gray-700">{escola.ideb}</strong></span>
                   <span className="text-[10px] text-gray-500">Aprov: <strong className="text-gray-700">{escola.aprovacao}%</strong></span>
                 </div>
               </div>
@@ -256,7 +256,7 @@ export default function EscolasPage() {
                       </div>
                       <div className="col-span-2 grid grid-cols-3 gap-3">
                         {[
-                          { label: 'IDEB', value: selected.ideb.toFixed(1), color: 'text-[#0F2744]', bg: 'bg-[#0F2744]/5' },
+                          { label: 'Meta 2026', value: selected.ideb.toFixed(1), color: 'text-[#0F2744]', bg: 'bg-[#0F2744]/5' },
                           { label: 'Aprovação', value: `${selected.aprovacao}%`, color: 'text-emerald-600', bg: 'bg-emerald-50' },
                           { label: 'Evasão', value: `${selected.evasao}%`, color: 'text-orange-500', bg: 'bg-orange-50' },
                           { label: 'Frequência', value: `${selected.frequencia}%`, color: 'text-violet-600', bg: 'bg-violet-50' },

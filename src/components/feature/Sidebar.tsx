@@ -11,9 +11,8 @@ const navItems: NavItem[] = [
   { path: '/', label: 'Dashboard', icon: 'ri-dashboard-3-line', group: 'Visão Geral' },
   { path: '/escolas', label: 'Escolas da Regional', icon: 'ri-school-line', group: 'Gestão Escolar' },
   { path: '/fluxo-escolar', label: 'Fluxo Escolar', icon: 'ri-flow-chart', group: 'Gestão Escolar' },
-  { path: '/notas', label: 'Preenchimento de Notas', icon: 'ri-file-list-3-line', group: 'Gestão Escolar' },
+  { path: '/notas', label: 'Registro de Notas por Bimestre', icon: 'ri-file-list-3-line', group: 'Gestão Escolar' },
   { path: '/cdg', label: 'CdG Cearense', icon: 'ri-loop-right-line', group: 'Ciclo de Gestão' },
-  { path: '/plano-de-acao', label: 'Plano de Ação', icon: 'ri-task-line', group: 'Ciclo de Gestão' },
   { path: '/visitas', label: 'Visitas Técnicas', icon: 'ri-map-pin-line', group: 'Ciclo de Gestão' },
   { path: '/busca-ativa', label: 'Busca Ativa / Evasão', icon: 'ri-user-search-line', group: 'Ciclo de Gestão' },
   { path: '/ppdt', label: 'PPDT & Coordenação', icon: 'ri-team-line', group: 'Ciclo de Gestão' },
@@ -31,24 +30,24 @@ export default function Sidebar() {
         <div className="w-10 h-10 flex items-center justify-center rounded-lg overflow-hidden flex-shrink-0">
           <img
             src="https://static.readdy.ai/image/65343c6eeff79b21e2af7ceb37b37afc/37b21220329337295d06473b7f478f15.jpeg"
-            alt="Logo SEDUC"
+            alt="Logo SEFOR 3"
             className="w-full h-full object-cover"
           />
         </div>
         <div>
-          <p className="text-white font-bold text-sm leading-tight">SEDUC Ceará</p>
-          <p className="text-white/50 text-xs">Superintendência</p>
+          <p className="text-white font-bold text-sm leading-tight">SEFOR 3</p>
+          <p className="text-white/50 text-xs">Gestão Regional</p>
         </div>
       </div>
 
       {/* User */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10">
         <div className="w-9 h-9 flex items-center justify-center rounded-full bg-[#00A86B] flex-shrink-0">
-          <span className="text-white font-bold text-sm">SR</span>
+          <span className="text-white font-bold text-sm">S3</span>
         </div>
         <div className="min-w-0">
-          <p className="text-white text-xs font-semibold truncate">Superintendente Regional</p>
-          <p className="text-white/40 text-xs truncate">Regional 1 — Fortaleza</p>
+          <p className="text-white text-xs font-semibold truncate">Gestor SEFOR 3</p>
+          <p className="text-white/40 text-xs truncate">SEFOR 3 — Fortaleza</p>
         </div>
       </div>
 
@@ -87,7 +86,7 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="px-5 py-4 border-t border-white/10">
-        <p className="text-white/25 text-[10px] text-center">SIGE Regional v1.0 — 2026</p>
+        <p className="text-white/25 text-[10px] text-center">SEFOR 3 — Sistema de Gestão v1.0 — 2026</p>
       </div>
     </aside>
   );

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import MainLayout from '@/components/feature/MainLayout';
 import { useBuscaAtiva, AlunoRisco, NovaAcao, NovoAlunoRisco } from '@/hooks/useBuscaAtiva';
 import ModalFichaAluno from './components/ModalFichaAluno';
@@ -18,6 +18,9 @@ export default function BuscaAtivaPage() {
   const { alunos, loading, error, stats, addAluno, updateAluno, addAcao } = useBuscaAtiva();
   const [filtroStatus, setFiltroStatus] = useState<StatusFiltro>('todos');
   const [search, setSearch] = useState('');
+  const [filtroEscola, setFiltroEscola] = useState('');
+  const [filtroSerie, setFiltroSerie] = useState('');
+  const [filtroTurma, setFiltroTurma] = useState('');
   const [alunoSelecionado, setAlunoSelecionado] = useState<AlunoRisco | null>(null);
   const [alunoParaAcao, setAlunoParaAcao] = useState<AlunoRisco | null>(null);
   const [modalNovoAluno, setModalNovoAluno] = useState(false);
@@ -28,12 +31,30 @@ export default function BuscaAtivaPage() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const filtered = alunos.filter(a => {
+  const escolasUnicas = useMemo(() => {
+    const nomes = [...new Set(alunos.map(a => a.escola_nome || '').filter(Boolean))].sort();
+    return nomes;
+  }, [alunos]);
+
+  const seriesUnicas = useMemo(() => {
+    const series = [...new Set(alunos.map(a => a.serie || '').filter(Boolean))].sort();
+    return series;
+  }, [alunos]);
+
+  const turmasUnicas = useMemo(() => {
+    const turmas = [...new Set(alunos.map(a => a.turma || '').filter(Boolean))].sort();
+    return turmas;
+  }, [alunos]);
+
+  const filtered = useMemo(() => alunos.filter(a => {
     const matchSearch = a.nome.toLowerCase().includes(search.toLowerCase()) ||
       (a.escola_nome || '').toLowerCase().includes(search.toLowerCase());
     const matchStatus = filtroStatus === 'todos' || a.status === filtroStatus;
-    return matchSearch && matchStatus;
-  });
+    const matchEscola = !filtroEscola || a.escola_nome === filtroEscola;
+    const matchSerie = !filtroSerie || a.serie === filtroSerie;
+    const matchTurma = !filtroTurma || a.turma === filtroTurma;
+    return matchSearch && matchStatus && matchEscola && matchSerie && matchTurma;
+  }), [alunos, search, filtroStatus, filtroEscola, filtroSerie, filtroTurma]);
 
   const handleUpdateStatus = async (id: string, status: AlunoRisco['status']) => {
     const ok = await updateAluno(id, { status });
@@ -65,6 +86,16 @@ export default function BuscaAtivaPage() {
     setAlunoSelecionado(null);
     setAlunoParaAcao(aluno);
   };
+
+  const limparFiltros = () => {
+    setSearch('');
+    setFiltroStatus('todos');
+    setFiltroEscola('');
+    setFiltroSerie('');
+    setFiltroTurma('');
+  };
+
+  const temFiltroAtivo = search || filtroStatus !== 'todos' || filtroEscola || filtroSerie || filtroTurma;
 
   if (loading) {
     return (
@@ -166,28 +197,86 @@ export default function BuscaAtivaPage() {
         )}
 
         {/* Filtros */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-xs">
-            <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar aluno ou escola..."
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#00A86B]"
-            />
+        <div className="bg-white rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-gray-700 flex items-center gap-2">
+              <i className="ri-filter-3-line text-[#0F2744]"></i>
+              Filtros de Busca
+            </p>
+            {temFiltroAtivo && (
+              <button
+                onClick={limparFiltros}
+                className="text-[10px] text-gray-400 hover:text-gray-600 cursor-pointer flex items-center gap-1"
+              >
+                <i className="ri-close-line"></i>
+                Limpar filtros
+              </button>
+            )}
           </div>
-          <div className="flex gap-2 flex-wrap">
+
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {/* Busca por nome */}
+            <div className="relative">
+              <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Buscar aluno..."
+                className="w-full pl-9 pr-4 py-2.5 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#00A86B]"
+              />
+            </div>
+
+            {/* Filtro por Escola */}
+            <select
+              value={filtroEscola}
+              onChange={e => setFiltroEscola(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer bg-white"
+            >
+              <option value="">Todas as escolas</option>
+              {escolasUnicas.map(e => (
+                <option key={e} value={e}>{e.replace('EEFM ', '')}</option>
+              ))}
+            </select>
+
+            {/* Filtro por Série */}
+            <select
+              value={filtroSerie}
+              onChange={e => setFiltroSerie(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer bg-white"
+            >
+              <option value="">Todas as séries</option>
+              {seriesUnicas.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+
+            {/* Filtro por Turma */}
+            <select
+              value={filtroTurma}
+              onChange={e => setFiltroTurma(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-[#00A86B] cursor-pointer bg-white"
+            >
+              <option value="">Todas as turmas</option>
+              {turmasUnicas.map(t => (
+                <option key={t} value={t}>Turma {t}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Status */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] text-gray-400 font-medium">Status:</span>
             {(['todos', 'em_risco', 'em_acompanhamento', 'retornou', 'evadido'] as StatusFiltro[]).map(f => (
               <button
                 key={f}
                 onClick={() => setFiltroStatus(f)}
-                className={`px-3 py-2 text-xs font-semibold rounded-full cursor-pointer transition-all whitespace-nowrap ${filtroStatus === f ? 'bg-[#0F2744] text-white' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full cursor-pointer transition-all whitespace-nowrap ${filtroStatus === f ? 'bg-[#0F2744] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
               >
                 {f === 'todos' ? 'Todos' : statusConfig[f]?.label}
               </button>
             ))}
+            <p className="text-xs text-gray-400 ml-auto whitespace-nowrap">{filtered.length} aluno{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}</p>
           </div>
-          <p className="text-xs text-gray-400 ml-auto whitespace-nowrap">{filtered.length} aluno{filtered.length !== 1 ? 's' : ''}</p>
         </div>
 
         {/* Lista de alunos */}
@@ -203,13 +292,13 @@ export default function BuscaAtivaPage() {
           <div className="bg-white rounded-xl overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100">
+                <tr className="border-b border-gray-100 bg-gray-50">
                   <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Aluno</th>
                   <th className="text-left px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Escola</th>
                   <th className="text-left px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Série / Turma</th>
                   <th className="text-center px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Dias Ausente</th>
                   <th className="text-center px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Faltas Consec.</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Motivo</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Motivo / Justificativa</th>
                   <th className="text-center px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Status</th>
                   <th className="text-center px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Ações</th>
                   <th className="px-4 py-3"></th>
@@ -237,8 +326,8 @@ export default function BuscaAtivaPage() {
                         <p className="text-xs text-gray-600 max-w-[140px] truncate">{aluno.escola_nome?.replace('EEFM ', '')}</p>
                       </td>
                       <td className="px-4 py-3.5">
-                        <p className="text-xs text-gray-600">{aluno.serie} — {aluno.turma}</p>
-                        <p className="text-[10px] text-gray-400 capitalize">{aluno.turno}</p>
+                        <p className="text-xs font-semibold text-gray-700">{aluno.serie}</p>
+                        <p className="text-[10px] text-gray-400">Turma {aluno.turma} — <span className="capitalize">{aluno.turno}</span></p>
                       </td>
                       <td className="px-4 py-3.5 text-center">
                         <span className={`text-sm font-bold ${aluno.dias_ausente >= 25 ? 'text-red-600' : aluno.dias_ausente >= 15 ? 'text-yellow-600' : 'text-gray-700'}`}>
@@ -251,7 +340,7 @@ export default function BuscaAtivaPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <p className="text-xs text-gray-500 max-w-[120px] truncate">{aluno.motivo_ausencia || '—'}</p>
+                        <p className="text-xs text-gray-500 max-w-[150px] truncate">{aluno.motivo_ausencia || '—'}</p>
                       </td>
                       <td className="px-4 py-3.5 text-center">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border ${cfg.bg} ${cfg.color}`}>
@@ -266,7 +355,7 @@ export default function BuscaAtivaPage() {
                         <div className="flex items-center gap-1.5 justify-end">
                           <button
                             onClick={() => setAlunoParaAcao(aluno)}
-                            title="Registrar ação"
+                            title="Registrar ação / justificativa"
                             className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#00A86B]/10 text-[#00A86B] hover:bg-[#00A86B]/20 cursor-pointer transition-colors"
                           >
                             <i className="ri-add-line text-sm"></i>

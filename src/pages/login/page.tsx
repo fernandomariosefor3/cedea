@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = 'Login — CREDE Sistema de Gestão Regional';
+    document.title = 'Login — SEFOR 3 Sistema de Gestão Regional';
 
     const schema = {
       '@context': 'https://schema.org',
@@ -77,7 +77,7 @@ export default function LoginPage() {
               <i className="ri-government-line text-white text-xl"></i>
             </div>
             <div>
-              <p className="text-white font-bold text-lg leading-tight">CREDE</p>
+              <p className="text-white font-bold text-lg leading-tight">SEFOR 3</p>
               <p className="text-white/60 text-xs">Sistema de Gestão Regional</p>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function LoginPage() {
             {[
               { icon: 'ri-school-line', label: 'Escolas', value: '47' },
               { icon: 'ri-user-line', label: 'Matrículas', value: '28k' },
-              { icon: 'ri-bar-chart-line', label: 'IDEB médio', value: '5.8' },
+              { icon: 'ri-bar-chart-line', label: 'Meta 2026', value: '5.8' },
             ].map((stat) => (
               <div key={stat.label} className="bg-white/10 rounded-xl p-4 text-center">
                 <div className="w-8 h-8 flex items-center justify-center mx-auto mb-2">
@@ -114,7 +114,7 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           <p className="text-white/30 text-xs">
-            © 2026 CREDE — Coordenadoria Regional de Desenvolvimento da Educação
+            © 2026 SEFOR 3 — Superintendência das Escolas Estaduais de Fortaleza
           </p>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function LoginPage() {
               <i className="ri-government-line text-white text-xl"></i>
             </div>
             <div>
-              <p className="text-[#0F2744] font-bold text-lg leading-tight">CREDE</p>
+              <p className="text-[#0F2744] font-bold text-lg leading-tight">SEFOR 3</p>
               <p className="text-gray-400 text-xs">Sistema de Gestão Regional</p>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu@crede.ce.gov.br"
+                  placeholder="seu@sefor3.ce.gov.br"
                   className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0F2744]/20 focus:border-[#0F2744] transition-all placeholder:text-gray-300"
                 />
               </div>
@@ -214,9 +214,9 @@ export default function LoginPage() {
             <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Credenciais de acesso</p>
             <div className="space-y-2">
               {[
-                { role: 'Administrador', email: 'admin@crede.ce.gov.br', pass: 'crede2026' },
-                { role: 'Gestor', email: 'gestor@crede.ce.gov.br', pass: 'gestor123' },
-                { role: 'Técnico', email: 'tecnico@crede.ce.gov.br', pass: 'tecnico123' },
+                { role: 'Administrador', email: 'admin@sefor3.ce.gov.br', pass: 'sefor2026' },
+                { role: 'Gestor', email: 'gestor@sefor3.ce.gov.br', pass: 'gestor123' },
+                { role: 'Técnico', email: 'tecnico@sefor3.ce.gov.br', pass: 'tecnico123' },
               ].map((u) => (
                 <button
                   key={u.email}
@@ -237,7 +237,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-6">
-            Problemas de acesso? Entre em contato com o suporte da CREDE.
+            Problemas de acesso? Entre em contato com o suporte da SEFOR 3.
           </p>
         </div>
       </div>

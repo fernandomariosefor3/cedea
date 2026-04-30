@@ -6,10 +6,12 @@ const pageTitles: Record<string, string> = {
   '/': 'Dashboard',
   '/escolas': 'Escolas da Regional',
   '/fluxo-escolar': 'Fluxo Escolar',
-  '/notas': 'Preenchimento de Notas',
+  '/notas': 'Registro de Notas por Bimestre',
   '/cdg': 'CdG Cearense',
-  '/plano-de-acao': 'Plano de Ação',
   '/visitas': 'Visitas Técnicas',
+  '/busca-ativa': 'Busca Ativa / Evasão',
+  '/ppdt': 'PPDT & Coordenação',
+  '/recomposicao': 'Recomposição das Aprendizagens',
   '/relatorios': 'Relatórios',
 };
 
@@ -17,10 +19,12 @@ const pageBreadcrumbs: Record<string, string[]> = {
   '/': ['Início'],
   '/escolas': ['Início', 'Gestão Escolar', 'Escolas da Regional'],
   '/fluxo-escolar': ['Início', 'Gestão Escolar', 'Fluxo Escolar'],
-  '/notas': ['Início', 'Gestão Escolar', 'Preenchimento de Notas'],
+  '/notas': ['Início', 'Gestão Escolar', 'Registro de Notas por Bimestre'],
   '/cdg': ['Início', 'Ciclo de Gestão', 'CdG Cearense'],
-  '/plano-de-acao': ['Início', 'Ciclo de Gestão', 'Plano de Ação'],
-  '/visitas': ['Início', 'Acompanhamento', 'Visitas Técnicas'],
+  '/visitas': ['Início', 'Ciclo de Gestão', 'Visitas Técnicas'],
+  '/busca-ativa': ['Início', 'Ciclo de Gestão', 'Busca Ativa'],
+  '/ppdt': ['Início', 'Ciclo de Gestão', 'PPDT'],
+  '/recomposicao': ['Início', 'Ciclo de Gestão', 'Recomposição'],
   '/relatorios': ['Início', 'Acompanhamento', 'Relatórios'],
 };
 

@@ -111,13 +111,28 @@ export default function ModalRegistrarAcao({ aluno, onSave, onClose }: Props) {
             <p className="text-[10px] text-gray-400 text-right mt-0.5">{form.descricao.length}/500</p>
           </div>
 
-          {/* Resultado */}
+          {/* Justificativa da Ausência */}
           <div>
-            <label className="text-xs font-bold text-gray-700 block mb-1.5">Resultado / Observações</label>
+            <label className="text-xs font-bold text-gray-700 block mb-1.5">
+              <i className="ri-questionnaire-line mr-1 text-amber-500"></i>
+              Justificativa da Ausência
+            </label>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              {['Trabalho informal', 'Problemas familiares', 'Doença / Saúde', 'Dificuldade de transporte', 'Gravidez / Maternidade', 'Conflito / Violência', 'Sem interesse', 'Sem justificativa'].map(j => (
+                <button
+                  key={j}
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, resultado: j === prev.resultado ? '' : j }))}
+                  className={`text-left px-3 py-2 rounded-lg border text-xs cursor-pointer transition-all ${form.resultado === j ? 'border-amber-400 bg-amber-50 text-amber-700 font-semibold' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                >
+                  {j}
+                </button>
+              ))}
+            </div>
             <textarea
               value={form.resultado}
               onChange={e => setForm(prev => ({ ...prev, resultado: e.target.value }))}
-              placeholder="Qual foi o resultado desta ação? (opcional)"
+              placeholder="Descreva ou complemente a justificativa da ausência do aluno..."
               rows={2}
               maxLength={500}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#00A86B] resize-none"
