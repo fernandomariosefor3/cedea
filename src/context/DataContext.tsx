@@ -19,6 +19,7 @@ interface DataContextType {
   error: string | null;
   updateEscola: (id: number, data: Partial<EscolaEditavel>) => Promise<boolean>;
   createEscola: (data: NovaEscolaInput) => Promise<boolean>;
+  deleteEscola: (id: number) => Promise<boolean>;
   getEscolaById: (id: number) => EscolaEditavel | undefined;
   stats: {
     totalEscolas: number;
@@ -37,7 +38,7 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const { escolas, loading, error, updateEscola: updateEscolaHook, createEscola: createEscolaHook, getEscolaById, stats } = useEscolas();
+  const { escolas, loading, error, updateEscola: updateEscolaHook, createEscola: createEscolaHook, deleteEscola: deleteEscolaHook, getEscolaById, stats } = useEscolas();
 
   const updateEscola = async (id: number, data: Partial<EscolaEditavel>): Promise<boolean> => {
     const { nucleoGestor: _ng, ...rest } = data;
@@ -48,6 +49,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return createEscolaHook(data as EscolaUpdateInput);
   };
 
+  const deleteEscola = async (id: number): Promise<boolean> => {
+    return deleteEscolaHook(id);
+  };
+
   const escolasEditaveis: EscolaEditavel[] = escolas.map((e) => ({ ...e, nucleoGestor: [] }));
 
   const getEscolaEditavelById = (id: number): EscolaEditavel | undefined => {
@@ -56,7 +61,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DataContext.Provider value={{ escolas: escolasEditaveis, loading, error, updateEscola, createEscola, getEscolaById: getEscolaEditavelById, stats }}>
+    <DataContext.Provider value={{ escolas: escolasEditaveis, loading, error, updateEscola, createEscola, deleteEscola, getEscolaById: getEscolaEditavelById, stats }}>
       {children}
     </DataContext.Provider>
   );
