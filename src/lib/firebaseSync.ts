@@ -17,6 +17,7 @@ const TABLES = [
   'ppdt_face',
   'ppdt_pca',
   'recomposicao_turmas',
+  'recomposicao_diagnosticos',
   'busca_ativa',
   'busca_ativa_acoes',
 ];
@@ -25,8 +26,8 @@ type Row = Record<string, unknown>;
 
 function objToArray(val: unknown): Row[] {
   if (!val || typeof val !== 'object') return [];
-  if (Array.isArray(val)) return val as Row[];
-  return Object.values(val) as Row[];
+  if (Array.isArray(val)) return (val as Row[]).filter((r) => r != null);
+  return (Object.values(val) as Row[]).filter((r) => r != null);
 }
 
 function arrayToObj(rows: Row[]): Record<string, Row> | null {
@@ -48,47 +49,53 @@ function firebaseWrite(table: string, rows: Row[]): void {
 }
 
 export async function initFirebaseSync(): Promise<void> {
-  // Register the write function so supabase shim can call it
   setFirebaseWriter(firebaseWrite as (table: string, rows: Row[]) => void);
 
-  // Try to load data from Firebase
-  try {
-    const rootRef = ref(rtdb, DB_ROOT);
-    const snapshot = await get(rootRef);
+  return new Promise<void>((resolve) => {
+    let initialized = false;
 
-    if (snapshot.exists()) {
-      const rootData = snapshot.val() as Record<string, unknown>;
-      let populated = false;
-      for (const table of TABLES) {
-        if (rootData[table]) {
-          const rows = objToArray(rootData[table]);
-          setTableCache(table, rows);
-          populated = true;
-        } else {
-          setTableCache(table, []);
-        }
-      }
-      if (populated) {
-        markFirebasePopulated();
+    function finish() {
+      if (!initialized) {
+        initialized = true;
+        resolve();
       }
     }
-    // If snapshot doesn't exist, Firebase is empty → local seed will run and write to Firebase
-  } catch (err) {
-    console.warn('[Firebase] Failed to load initial data, falling back to local seed:', err);
-  }
 
-  // Set up real-time listeners for all tables
-  for (const table of TABLES) {
-    const tableRef = ref(rtdb, `${DB_ROOT}/${table}`);
-    onValue(tableRef, (snap) => {
-      const rows = snap.exists() ? objToArray(snap.val()) : [];
-      setTableCache(table, rows);
-      // Notify hooks that this table changed
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent(`sefor3:table:${table}`));
-      }
-    });
-  }
+    // Single root listener — one network call handles initial load and real-time updates
+    const rootRef = ref(rtdb, DB_ROOT);
+    onValue(
+      rootRef,
+      (snapshot) => {
+        const rootData = snapshot.exists()
+          ? (snapshot.val() as Record<string, unknown>)
+          : {};
+
+        let populated = false;
+        for (const table of TABLES) {
+          if (rootData[table]) {
+            setTableCache(table, objToArray(rootData[table]));
+            populated = true;
+          } else {
+            setTableCache(table, []);
+          }
+        }
+        if (populated) markFirebasePopulated();
+
+        // Notify all hooks that data may have changed
+        if (typeof window !== 'undefined') {
+          TABLES.forEach((table) =>
+            window.dispatchEvent(new CustomEvent(`sefor3:table:${table}`)),
+          );
+        }
+
+        finish();
+      },
+      () => finish(), // error callback — let app render with fallback
+    );
+
+    // Safety timeout: never block more than 4 seconds
+    setTimeout(finish, 4000);
+  });
 }
 
 // ─── CDG Planos (used directly by the CDG page via localStorage) ──────────────
