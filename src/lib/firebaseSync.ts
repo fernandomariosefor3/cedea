@@ -40,9 +40,18 @@ function arrayToObj(rows: Row[]): Record<string, Row> | null {
   return obj;
 }
 
+// ✅ CORRIGIDO: sanitiza undefined → null antes de enviar ao Firebase
+// O Firebase Realtime Database rejeita qualquer campo com valor undefined.
+function sanitizeForFirebase(data: unknown): unknown {
+  return JSON.parse(
+    JSON.stringify(data, (_, value) => (value === undefined ? null : value))
+  );
+}
+
 function firebaseWrite(table: string, rows: Row[]): void {
   const tableRef = ref(rtdb, `${DB_ROOT}/${table}`);
-  const data = arrayToObj(rows);
+  const sanitized = sanitizeForFirebase(rows) as Row[];  // ✅ CORRIGIDO
+  const data = arrayToObj(sanitized);
   set(tableRef, data).catch((err) =>
     console.warn(`[Firebase] write error for "${table}":`, err),
   );
@@ -112,7 +121,7 @@ export async function loadCdgPlanos<T>(): Promise<T[]> {
 }
 
 export function saveCdgPlanos<T>(planos: T[]): void {
-  const data = arrayToObj(planos as unknown as Row[]);
+  const data = arrayToObj(sanitizeForFirebase(planos) as Row[]);  // ✅ CORRIGIDO
   set(ref(rtdb, CDG_PLANOS_PATH), data).catch(console.warn);
 }
 
@@ -137,7 +146,7 @@ export async function loadAcoesRecomp<T>(): Promise<T[]> {
 }
 
 export function saveAcoesRecomp<T>(acoes: T[]): void {
-  const data = arrayToObj(acoes as unknown as Row[]);
+  const data = arrayToObj(sanitizeForFirebase(acoes) as Row[]);  // ✅ CORRIGIDO
   set(ref(rtdb, ACOES_RECOMP_PATH), data).catch(console.warn);
 }
 
