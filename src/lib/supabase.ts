@@ -203,11 +203,19 @@ function readTable<T = Row>(name: string): T[] {
   return (memCache.get(name) as T[]) ?? [];
 }
 
+// ✅ CORRIGIDO: sanitiza undefined → null antes de gravar no Firebase
+// O Firebase Realtime Database rejeita qualquer campo com valor undefined.
+function sanitizeForFirebase(rows: Row[]): Row[] {
+  return JSON.parse(JSON.stringify(rows, (_, value) =>
+    value === undefined ? null : value
+  ));
+}
+
 function writeTable(name: string, rows: Row[]): void {
   memCache.set(name, rows);
-  // Async write to Firebase (fire-and-forget)
+  // Async write to Firebase (fire-and-forget) — usando dados sanitizados
   if (_firebaseWriter) {
-    _firebaseWriter(name, rows);
+    _firebaseWriter(name, sanitizeForFirebase(rows)); // ✅ CORRIGIDO
   }
   // Notify any listeners (hooks can subscribe for real-time refresh)
   if (typeof window !== 'undefined') {
