@@ -1,6 +1,8 @@
+// v2
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAd-4euttMAoLaCELK2yll32RL8LTcPWbw",
@@ -15,5 +17,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const rtdb = getDatabase(app);
 export const auth = getAuth(app);
-export const DB_ROOT = 'sefor3';
+export const db = getFirestore(app);
+export const DB_ROOT = 'sefor3'; // cache bust
 export default app;
