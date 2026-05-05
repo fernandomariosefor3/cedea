@@ -102,39 +102,40 @@ export function useEscolas() {
 
       if (err) throw err;
 
+      // ✅ CORRIGIDO: todos os campos nullable usam ?? para evitar undefined no Firebase
       const mapped = (data ?? []).map((e: Record<string, unknown>) => ({
         id: e.id as number,
-        nome: e.nome as string,
-        endereco: e.endereco as string,
-        diretor: e.diretor as string,
-        telefone: e.telefone as string,
-        email: e.email as string,
-        matriculas: e.matriculas as number,
+        nome: (e.nome as string) ?? '',
+        endereco: (e.endereco as string) ?? '',
+        diretor: (e.diretor as string) ?? '',
+        telefone: (e.telefone as string) ?? '',
+        email: (e.email as string) ?? '',
+        matriculas: (e.matriculas as number) ?? 0,
         matriculasAnterior: (e.matriculas_anterior as number) ?? (e.matriculas as number) ?? 0,
-        turmas: e.turmas as number,
-        professores: e.professores as number,
-        funcionarios: e.funcionarios as number,
-        ideb: e.ideb as number,
-        aprovacao: e.aprovacao as number,
-        evasao: e.evasao as number,
-        frequencia: e.frequencia as number,
-        preenchimentoSige: e.preenchimento_sige as number,
+        turmas: (e.turmas as number) ?? 0,
+        professores: (e.professores as number) ?? 0,
+        funcionarios: (e.funcionarios as number) ?? 0,
+        ideb: (e.ideb as number) ?? 0,
+        aprovacao: (e.aprovacao as number) ?? 0,
+        evasao: (e.evasao as number) ?? 0,
+        frequencia: (e.frequencia as number) ?? 0,
+        preenchimentoSige: (e.preenchimento_sige as number) ?? 0,
         statusSemaforo: e.status_semaforo as 'verde' | 'amarelo' | 'vermelho',
-        foto: (e.foto as string) || '',
-        notaPortugues: e.nota_portugues as number,
-        notaMatematica: e.nota_matematica as number,
-        notaMedia: e.nota_media as number,
-        visitasRealizadas: e.visitas_realizadas as number,
-        metaAprovacao: e.meta_aprovacao as number,
-        metaFrequencia: e.meta_frequencia as number,
-        metaEvasao: e.meta_evasao as number,
-        observacoes: e.observacoes as string,
-        updatedAt: e.updated_at as string,
-        mapUrl: e.map_url as string,
-        tipoEscola: e.tipo_escola as string,
-        zona: e.zona as string,
-        statusCdg: e.status_cdg as string,
-        etapasCdg: e.etapas_cdg as number,
+        foto: (e.foto as string) ?? '',
+        notaPortugues: (e.nota_portugues as number) ?? 0,   // ✅ CORRIGIDO
+        notaMatematica: (e.nota_matematica as number) ?? 0, // ✅ CORRIGIDO
+        notaMedia: (e.nota_media as number) ?? 0,           // ✅ CORRIGIDO
+        visitasRealizadas: (e.visitas_realizadas as number) ?? 0,
+        metaAprovacao: (e.meta_aprovacao as number) ?? 0,
+        metaFrequencia: (e.meta_frequencia as number) ?? 0,
+        metaEvasao: (e.meta_evasao as number) ?? 0,
+        observacoes: (e.observacoes as string) ?? '',
+        updatedAt: (e.updated_at as string) ?? '',
+        mapUrl: (e.map_url as string) ?? '',
+        tipoEscola: (e.tipo_escola as string) ?? '',
+        zona: (e.zona as string) ?? '',
+        statusCdg: (e.status_cdg as string) ?? '',
+        etapasCdg: (e.etapas_cdg as number) ?? 0,
       }));
 
       setEscolas(mapped);
@@ -171,7 +172,8 @@ export function useEscolas() {
       const snakeData: Record<string, unknown> = {};
       Object.entries(updateData).forEach(([key, value]) => {
         const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-        snakeData[snakeKey] = value;
+        // ✅ CORRIGIDO: substitui undefined por null antes de enviar
+        snakeData[snakeKey] = value === undefined ? null : value;
       });
 
       const { error: err } = await supabase
@@ -204,6 +206,7 @@ export function useEscolas() {
       }
       const statusSemaforo = calcSemaforoLocal(data as Partial<Escola>);
 
+      // ✅ CORRIGIDO: nota_portugues, nota_matematica e nota_media incluídos com null como padrão
       const insertData: Record<string, unknown> = {
         nome: data.nome ?? '',
         diretor: data.diretor ?? '',
@@ -224,6 +227,9 @@ export function useEscolas() {
         zona: data.zona ?? 'Urbana',
         observacoes: data.observacoes ?? '',
         foto: data.foto ?? null,
+        nota_portugues: data.notaPortugues ?? null,   // ✅ CORRIGIDO
+        nota_matematica: data.notaMatematica ?? null,  // ✅ CORRIGIDO
+        nota_media: data.notaMedia ?? null,            // ✅ CORRIGIDO
         meta_aprovacao: 95,
         meta_frequencia: 92,
         meta_evasao: 2,
@@ -242,37 +248,37 @@ export function useEscolas() {
 
       const nova: Escola = {
         id: inserted.id as number,
-        nome: inserted.nome as string,
-        endereco: inserted.endereco as string,
-        diretor: inserted.diretor as string,
-        telefone: inserted.telefone as string,
-        email: inserted.email as string,
-        matriculas: inserted.matriculas as number,
+        nome: (inserted.nome as string) ?? '',
+        endereco: (inserted.endereco as string) ?? '',
+        diretor: (inserted.diretor as string) ?? '',
+        telefone: (inserted.telefone as string) ?? '',
+        email: (inserted.email as string) ?? '',
+        matriculas: (inserted.matriculas as number) ?? 0,
         matriculasAnterior: (inserted.matriculas_anterior as number) ?? (inserted.matriculas as number) ?? 0,
-        turmas: inserted.turmas as number,
-        professores: inserted.professores as number,
-        funcionarios: inserted.funcionarios as number,
-        ideb: inserted.ideb as number,
-        aprovacao: inserted.aprovacao as number,
-        evasao: inserted.evasao as number,
-        frequencia: inserted.frequencia as number,
-        preenchimentoSige: inserted.preenchimento_sige as number,
+        turmas: (inserted.turmas as number) ?? 0,
+        professores: (inserted.professores as number) ?? 0,
+        funcionarios: (inserted.funcionarios as number) ?? 0,
+        ideb: (inserted.ideb as number) ?? 0,
+        aprovacao: (inserted.aprovacao as number) ?? 0,
+        evasao: (inserted.evasao as number) ?? 0,
+        frequencia: (inserted.frequencia as number) ?? 0,
+        preenchimentoSige: (inserted.preenchimento_sige as number) ?? 0,
         statusSemaforo: inserted.status_semaforo as 'verde' | 'amarelo' | 'vermelho',
-        foto: inserted.foto as string,
-        notaPortugues: inserted.nota_portugues as number,
-        notaMatematica: inserted.nota_matematica as number,
-        notaMedia: inserted.nota_media as number,
-        visitasRealizadas: inserted.visitas_realizadas as number,
-        metaAprovacao: inserted.meta_aprovacao as number,
-        metaFrequencia: inserted.meta_frequencia as number,
-        metaEvasao: inserted.meta_evasao as number,
-        observacoes: inserted.observacoes as string,
-        updatedAt: inserted.updated_at as string,
-        mapUrl: inserted.map_url as string,
-        tipoEscola: inserted.tipo_escola as string,
-        zona: inserted.zona as string,
-        statusCdg: inserted.status_cdg as string,
-        etapasCdg: inserted.etapas_cdg as number,
+        foto: (inserted.foto as string) ?? '',
+        notaPortugues: (inserted.nota_portugues as number) ?? 0,   // ✅ CORRIGIDO
+        notaMatematica: (inserted.nota_matematica as number) ?? 0, // ✅ CORRIGIDO
+        notaMedia: (inserted.nota_media as number) ?? 0,           // ✅ CORRIGIDO
+        visitasRealizadas: (inserted.visitas_realizadas as number) ?? 0,
+        metaAprovacao: (inserted.meta_aprovacao as number) ?? 0,
+        metaFrequencia: (inserted.meta_frequencia as number) ?? 0,
+        metaEvasao: (inserted.meta_evasao as number) ?? 0,
+        observacoes: (inserted.observacoes as string) ?? '',
+        updatedAt: (inserted.updated_at as string) ?? '',
+        mapUrl: (inserted.map_url as string) ?? '',
+        tipoEscola: (inserted.tipo_escola as string) ?? '',
+        zona: (inserted.zona as string) ?? '',
+        statusCdg: (inserted.status_cdg as string) ?? '',
+        etapasCdg: (inserted.etapas_cdg as number) ?? 0,
       };
 
       setEscolas(prev => [...prev, nova].sort((a, b) => a.nome.localeCompare(b.nome)));
