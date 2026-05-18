@@ -1,8 +1,14 @@
-name: Deploy to Firebase Hosting
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'index.html'
+      - 'assets/**'
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
@@ -21,10 +27,16 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          channelId: live
-          projectId: crede-166c2
+      - name: Update bundle in root
+        run: |
+          cp out/index.html index.html
+          rm -rf assets
+          cp -r out/assets assets
+
+      - name: Commit and push new bundle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/
+          git commit -m "chore: update bundle [skip ci]" || echo "Nothing to commit"
+          git push
