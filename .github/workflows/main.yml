@@ -35,11 +35,12 @@ jobs:
           rm -rf assets
           cp -r out/assets assets
           cp out/index.html index.html
+          cp out/index.html 404.html
 
       - name: Commit and push new bundle
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html assets/
+          git add index.html 404.html assets/
           git commit -m "chore: update bundle [skip ci]" || echo "Nothing to commit"
           git push
